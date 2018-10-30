@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Simon Dice</title>
+	<style type="text/css">
+		body{
+			align-items: center;
+			justify-content: center;
+			display: flex;
+			margin: 0;
+			height: 100vh;
+		}
+		.contenedor{
+			width: 400px;
+			height: 400px;
+			background: red;
+			margin: 0;
+			padding: 0;
+			border-radius: 50%;
+			overflow: hidden;
+			display: inline-block;
+		}
+		.azul{
+			background: rgb(33, 97, 140);
+			width: 50%;
+			height: 50%;
+		}
+		.azul.light{
+			background: rgb(93, 173, 226);
+		}
+		.morado{
+			background: rgb(108, 52, 131);
+			width: 50%;
+			height: 50%;
+		}
+		.morado.light{
+			background: rgb(187, 143, 206); 
+		}
+		.amarillo{
+			background: rgb(212, 172, 13);
+			width: 50%;
+			height: 50%;
+		}
+		.amarillo.light{
+			background: rgb(247, 220, 111);
+		}
+		.verde{
+			background: rgb(34, 153, 84);
+			width: 50%;
+			height: 50%;
+		}
+		.verde.light{
+			background: rgb(88, 214, 141);
+		}
+		.color{
+			display: inline-block;
+		}
+		.left{
+			float: left;
+		}
+		.right{
+			float: right;
+		}
+		.btn-start {
+		    cursor: pointer;
+		    width: 420px;
+		    height: 100px;
+		    background: #ecf0f1;
+		    color: #2c3e50;
+		    border: none;
+		    border-bottom: 4px solid #c4c6c7;
+		    border-radius: 8px;
+		    font-size: 3em;
+		    position: absolute;
+		    transition: .5s;
+		    outline: none;
+	    }
+
+	    .btn-start:hover {
+	        color: #ecf0f1;
+	        background: #2c3e50;
+	        border-bottom: 4px solid #1f3346;
+	    }
+	    
+	    .btn-start:active {
+	        transform: scale(.95);
+	    }
+	    .hide {
+	    	display: none;
+	    }
+	    *{
+	    	font-family: Futura, 'Trebuchet MS', Arial, sans-serif;
+	    }
+	</style>
+		
+	
+</head>
+<body>
+	<div class='contenedor'>
+		<!-- data-something = "valor" -->
+		<div id='azul' class="color azul left" data-color='azul'></div>
+		<div id='morado' class="color morado right" data-color='morado'></div>
+		<div id='amarillo' class="color amarillo left" data-color='amarillo'></div>
+		<div id='verde' class="color verde right" data-color='verde'></div>
+	</div>
+	<button id="btnEmpezar" class='btn-start' onClick="empezarJuego()">Iniciar juego</button>
+
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script type="text/javascript">
+		const btnEmpezar = document.getElementById('btnEmpezar')
+		const azul = document.getElementById('azul')
+		const morado = document.getElementById('morado')
+		const amarillo = document.getElementById('amarillo')
+		const verde = document.getElementById('verde')
+		const ULTIMO_NIVEL = 10
+
+		class Juego{
+			constructor(){
+				this.inicializar()
+				this.generarSecuencia()
+				setTimeout(this.siguienteNivel, 1000)
+			}
+
+			inicializar(){
+				//atando contexto this con bind
+				this.elegirColor = this.elegirColor.bind(this)
+				this.siguienteNivel = this.siguienteNivel.bind(this)
+				this.inicializar = this.inicializar.bind(this)
+
+				this.toggleBtnEmpezar()
+				
+				this.nivel = 1
+				this.colores = {
+					azul,
+					morado,
+					amarillo,
+					verde
+				}
+			}
+
+			toggleBtnEmpezar(){
+				if (btnEmpezar.classList.contains('hide')){
+					btnEmpezar.classList.remove("hide")
+				} else{
+					btnEmpezar.classList.add("hide")
+				}
+				
+			}
+
+			generarSecuencia(){
+				this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4))
+			}
+
+			siguienteNivel(){
+				//this.nombreAtributo = valor
+				this.subNivel = 0
+				this.iluminarSecuencia()
+				this.agregarEventosclick()
+
+			}
+
+			transformarNumeroAColor(numero){
+				switch(numero){
+					case 0:
+						return 'azul'
+					case 1:
+						return 'morado'
+					case 2:
+						return 'amarillo'
+					case 3:
+						return 'verde'
+				}
+			}
+
+			transformarColorANumero(color){
+				switch(color){
+					case 'azul':
+						return 0
+					case 'morado':
+						return 1
+					case 'amarillo':
+						return 2
+					case 'verde':
+						return 3
+				}
+			}
+
+			iluminarSecuencia(){
+				for(var i = 0; i < this.nivel; i++){
+					const color = this.transformarNumeroAColor(this.secuencia[i])
+					setTimeout(() => this.iluminarColor(color), 1000 * i)
+				}
+			}
+
+			iluminarColor(color){
+				this.colores[color].classList.add('light')
+				setTimeout(() => this.apagarColor(color), 700)
+			}
+
+			apagarColor(color){
+				this.colores[color].classList.remove('light')
+			}
+
+			agregarEventosclick(){
+				// this.colores.azul.addEventListener('click', this.elegirColor.bind(this))
+				// this.colores.morado.addEventListener('click', this.elegirColor.bind(this))
+				// this.colores.amarillo.addEventListener('click', this.elegirColor.bind(this))
+				// this.colores.verde.addEventListener('click', this.elegirColor.bind(this))	
+				this.colores.azul.addEventListener('click', this.elegirColor)
+				this.colores.morado.addEventListener('click', this.elegirColor)
+				this.colores.amarillo.addEventListener('click', this.elegirColor)
+				this.colores.verde.addEventListener('click', this.elegirColor)			
+			}
+
+			eliminarEventosClick(){
+				this.colores.azul.removeEventListener('click', this.elegirColor)
+				this.colores.morado.removeEventListener('click', this.elegirColor)
+				this.colores.amarillo.removeEventListener('click', this.elegirColor)
+				this.colores.verde.removeEventListener('click', this.elegirColor)
+			}
+
+			elegirColor(ev){
+				const nombreColor = ev.target.dataset.color
+				const numeroColor = this.transformarColorANumero(nombreColor)
+				this.iluminarColor(nombreColor)
+				if(numeroColor === this.secuencia[this.subNivel]){
+					this.subNivel++
+					if (this.subNivel === this.nivel) {
+						this.nivel++
+						this.eliminarEventosClick()
+						if (this.nivel === (ULTIMO_NIVEL + 1)) {
+							this.ganoElJuego()
+						} else{
+							this.pasaDeNivel()
+							setTimeout(swal.close, 1500)
+							setTimeout(this.siguienteNivel, 2500)
+						}
+					}
+				}else{
+					this.perdioElJuego()
+				}
+
+			}
+
+			pasaDeNivel(){
+				swal('Simon', `Llegaste al nivel: ${this.nivel}`)
+			}
+
+			ganoElJuego(){
+				swal('Simon', '¡Ganaste!', 'success')
+				.then(this.inicializar)
+			}
+
+			perdioElJuego(){
+				swal('Simon', '¡Perdiste!', 'error')
+				.then(()=>{
+					this.eliminarEventosClick()
+					this.inicializar()
+				})
+			}
+		}
+
+		function empezarJuego(){
+			window.juego = new Juego()
+		}
+
+	</script>
+</body>
+</html>
